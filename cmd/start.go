@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os/exec"
 	"strings"
 
@@ -27,6 +28,12 @@ var startCmd = &cobra.Command{
 				tunnel = t
 			}
 		}
+
+		l, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", tunnel.LocalPort))
+		if err != nil {
+			log.Fatal("Port Listen Error: ", err)
+		}
+		l.Close()
 
 		tunnelStr := fmt.Sprintf("%d:%s:%d", tunnel.LocalPort, tunnel.RemoteHost, tunnel.RemotePort)
 		cmder := exec.CommandContext(context.Background(), "ssh", "-N", "-L", tunnelStr, "-f", tunnel.JumpServer)
